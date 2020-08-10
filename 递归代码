@@ -1,0 +1,28 @@
+$isWin = strtoupper(substr(PHP_OS,0,3))==='WIN' ? true : false;
+function sandir($dir){
+		// 遍历当前目录下的文件及文件夹
+		$handler = opendir($dir);
+		$dirArr=Array(); $i=0; global $isWin;
+		while( ($filename = readdir($handler)) !== false ) 
+		{
+			//略过linux目录的名字为'.'和'..'的文件
+			if($filename != "." && $filename != "..")
+			{  
+				$dirArr[$i]['title'] = $isWin ? mb_convert_encoding($filename,'UTF-8','GBK'): utf8_encode($filename);
+				if(is_dir($dir.'/'.$filename)){
+					$dirArr[$i]['img']='./template/shop1.png';
+					$dirArr[$i]['child'] = sandir($dir.'/'.$filename);
+				}else{
+					if(get_extension($filename)!=='.mp4'){
+						unlink($dir.'/'.$filename);
+					}else{
+					$dirArr[$i]['url']=$isWin?mb_convert_encoding($dir.'/'.$filename,'UTF-8','GBK'):utf8_encode($dir.'/'.$filename);
+					$dirArr[$i]['img']='./template/bf.jpg';		
+					}
+				}
+				$i++;
+			}
+		}
+		closedir($handler);
+		return $dirArr;
+	}
